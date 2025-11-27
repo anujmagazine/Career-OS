@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { UserProfile, CareerOption, CareerRoadmap } from "../types";
 
@@ -20,9 +21,14 @@ const careerListSchema: Schema = {
     properties: {
       id: { type: Type.STRING, description: "A unique identifier (1-5)" },
       title: { type: Type.STRING, description: "The name of the career path" },
-      summary: { type: Type.STRING, description: "A 1-sentence summary of what the job looks like." }
+      summary: { type: Type.STRING, description: "A 1-sentence summary of what the job looks like." },
+      popularPersonalities: { 
+        type: Type.ARRAY, 
+        items: { type: Type.STRING }, 
+        description: "Names of 1-2 famous personalities (real people) from the user's country (preferred) or globally who are successful in this field." 
+      }
     },
-    required: ["id", "title", "summary"]
+    required: ["id", "title", "summary", "popularPersonalities"]
   }
 };
 
@@ -67,6 +73,7 @@ export const fetchCareerOptions = async (profile: UserProfile): Promise<CareerOp
     1. **Modern Mix:** Explicitly consider and include "new age" or emerging careers (e.g., AI, Sustainability, Digital Media, Green Tech) alongside traditional paths if they fit the interests.
     2. **Strict Filtering:** If I dislike Math, do not suggest Engineering. If I dislike blood, no Medicine. Use the dislikes strictly.
     3. **Localization:** Ensure these are viable in ${profile.country}.
+    4. **Inspiration:** For each career, identify 1-2 famous personalities from ${profile.country} (or globally if no local match is famous enough) to inspire the student.
   `;
 
   try {

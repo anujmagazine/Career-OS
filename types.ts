@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   interests: string;
   dislikes: string;
@@ -8,6 +9,7 @@ export interface CareerOption {
   id: string;
   title: string;
   summary: string;
+  popularPersonalities: string[];
 }
 
 export interface AcademicRoute {

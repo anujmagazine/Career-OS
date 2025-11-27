@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { CareerOption } from '../types';
-import { RotateCcw, ArrowRight } from 'lucide-react';
+import { RotateCcw, ArrowRight, Star } from 'lucide-react';
 
 interface CareerListProps {
   careers: CareerOption[];
@@ -41,6 +42,23 @@ const CareerList: React.FC<CareerListProps> = ({ careers, onSelect, onBack }) =>
               <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">
                 {career.summary}
               </p>
+
+              {/* Personalities Section */}
+              {career.popularPersonalities && career.popularPersonalities.length > 0 && (
+                <div className="mb-6 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                   <div className="flex items-center gap-1.5 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" /> 
+                     Like
+                   </div>
+                   <div className="flex flex-wrap gap-2">
+                     {career.popularPersonalities.map((person, idx) => (
+                       <span key={idx} className="text-xs font-medium text-slate-700 bg-white px-2 py-1 rounded-md shadow-sm border border-slate-200">
+                         {person}
+                       </span>
+                     ))}
+                   </div>
+                </div>
+              )}
               
               <div className={`w-full py-3 rounded-xl bg-slate-50 text-slate-600 font-semibold text-center text-sm group-hover:bg-slate-900 group-hover:text-white transition-all mt-auto flex items-center justify-center gap-2`}>
                 View Roadmap
