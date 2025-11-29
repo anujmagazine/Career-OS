@@ -1,15 +1,16 @@
 
 import React from 'react';
 import { CareerOption } from '../types';
-import { RotateCcw, ArrowRight, Star } from 'lucide-react';
+import { RotateCcw, ArrowRight, Star, ExternalLink } from 'lucide-react';
 
 interface CareerListProps {
   careers: CareerOption[];
   onSelect: (career: CareerOption) => void;
   onBack: () => void;
+  onAnalyzePersonality: (name: string, careerTitle: string) => void;
 }
 
-const CareerList: React.FC<CareerListProps> = ({ careers, onSelect, onBack }) => {
+const CareerList: React.FC<CareerListProps> = ({ careers, onSelect, onBack, onAnalyzePersonality }) => {
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="text-center mb-12">
@@ -21,49 +22,65 @@ const CareerList: React.FC<CareerListProps> = ({ careers, onSelect, onBack }) =>
         {careers.map((career, index) => {
           const style = getCardStyle(index);
           return (
-            <button
+            <div
               key={career.id}
-              onClick={() => onSelect(career)}
               className={`group relative flex flex-col h-full bg-white p-6 rounded-3xl shadow-sm border border-slate-100 ${style.hoverBorder} hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left`}
             >
-              <div className="flex items-center justify-between mb-5">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm ${style.badgeBg} ${style.badgeText}`}>
-                  {index + 1}
+              <button 
+                onClick={() => onSelect(career)}
+                className="w-full text-left flex-grow flex flex-col"
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm ${style.badgeBg} ${style.badgeText}`}>
+                    {index + 1}
+                  </div>
+                  <div className="p-2 bg-slate-50 rounded-full group-hover:bg-indigo-50 transition-colors">
+                    <ArrowRight className={`w-5 h-5 text-slate-300 group-hover:${style.badgeText} transition-colors`} />
+                  </div>
                 </div>
-                <div className="p-2 bg-slate-50 rounded-full group-hover:bg-indigo-50 transition-colors">
-                  <ArrowRight className={`w-5 h-5 text-slate-300 group-hover:${style.badgeText} transition-colors`} />
-                </div>
-              </div>
 
-              <h3 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-indigo-700 transition-colors leading-tight">
-                {career.title}
-              </h3>
-              
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">
-                {career.summary}
-              </p>
+                <h3 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-indigo-700 transition-colors leading-tight">
+                  {career.title}
+                </h3>
+                
+                <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                  {career.summary}
+                </p>
+              </button>
 
-              {/* Personalities Section */}
+              {/* Personalities Section - Separated from main card click */}
               {career.popularPersonalities && career.popularPersonalities.length > 0 && (
                 <div className="mb-6 bg-slate-50 rounded-xl p-3 border border-slate-100">
                    <div className="flex items-center gap-1.5 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                      <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" /> 
-                     Like
+                     Inspiration
                    </div>
                    <div className="flex flex-wrap gap-2">
                      {career.popularPersonalities.map((person, idx) => (
-                       <span key={idx} className="text-xs font-medium text-slate-700 bg-white px-2 py-1 rounded-md shadow-sm border border-slate-200">
+                       <button
+                         key={idx}
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           onAnalyzePersonality(person, career.title);
+                         }}
+                         className="flex items-center gap-1 text-xs font-medium text-slate-700 bg-white px-2 py-1.5 rounded-md shadow-sm border border-slate-200 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition-all"
+                         title="See how their journey matches yours"
+                       >
                          {person}
-                       </span>
+                         <ExternalLink className="w-3 h-3 opacity-50" />
+                       </button>
                      ))}
                    </div>
                 </div>
               )}
               
-              <div className={`w-full py-3 rounded-xl bg-slate-50 text-slate-600 font-semibold text-center text-sm group-hover:bg-slate-900 group-hover:text-white transition-all mt-auto flex items-center justify-center gap-2`}>
+              <button
+                onClick={() => onSelect(career)}
+                className={`w-full py-3 rounded-xl bg-slate-50 text-slate-600 font-semibold text-center text-sm group-hover:bg-slate-900 group-hover:text-white transition-all mt-auto flex items-center justify-center gap-2`}
+              >
                 View Roadmap
-              </div>
-            </button>
+              </button>
+            </div>
           );
         })}
       </div>

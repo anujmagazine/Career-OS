@@ -31,6 +31,13 @@ export interface CareerRoadmap {
   fitReason: string;
 }
 
+export interface PersonalityAnalysis {
+  name: string;
+  career: string;
+  journeySummary: string;
+  connectionToUser: string;
+}
+
 export enum AppStep {
   INTAKE = 'INTAKE',
   LOADING_LIST = 'LOADING_LIST',

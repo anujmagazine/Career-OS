@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, Schema } from "@google/genai";
-import { UserProfile, CareerOption, CareerRoadmap } from "../types";
+import { UserProfile, CareerOption, CareerRoadmap, PersonalityAnalysis } from "../types";
 
 // Initialize Gemini Client
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -59,8 +59,19 @@ const roadmapSchema: Schema = {
   required: ["title", "academicRoute", "skills", "studyTimeline", "fitReason"]
 };
 
+const personalityAnalysisSchema: Schema = {
+  type: Type.OBJECT,
+  properties: {
+    name: { type: Type.STRING },
+    career: { type: Type.STRING },
+    journeySummary: { type: Type.STRING, description: "A brief, inspiring story of how they started (approx 2 sentences)." },
+    connectionToUser: { type: Type.STRING, description: "Directly explain how this person's journey relates to the student's specific Interests and Dislikes. Start with 'Like you...'" }
+  },
+  required: ["name", "career", "journeySummary", "connectionToUser"]
+};
+
 export const fetchCareerOptions = async (profile: UserProfile): Promise<CareerOption[]> => {
-  const model = "gemini-2.5-flash"; // Good for reasoning and structure
+  const model = "gemini-2.5-flash"; 
   
   const prompt = `
     I am a 10th-grade student living in ${profile.country}.
@@ -120,7 +131,7 @@ export const fetchCareerRoadmap = async (careerTitle: string, profile: UserProfi
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         responseSchema: roadmapSchema,
-        temperature: 0.5, // Lower temperature for more factual educational info
+        temperature: 0.5,
       }
     });
 
@@ -130,6 +141,44 @@ export const fetchCareerRoadmap = async (careerTitle: string, profile: UserProfi
     return JSON.parse(text) as CareerRoadmap;
   } catch (error) {
     console.error("Error fetching roadmap:", error);
+    throw error;
+  }
+};
+
+export const fetchPersonalityAnalysis = async (name: string, careerTitle: string, profile: UserProfile): Promise<PersonalityAnalysis> => {
+  const model = "gemini-2.5-flash";
+
+  const prompt = `
+    I am a 10th-grade student who loves: ${profile.interests}
+    and dislikes: ${profile.dislikes}.
+    
+    I am curious about the career "${careerTitle}" and the famous personality "${name}".
+    
+    Task:
+    1. Briefly tell the story of how ${name} started or succeeded in this field.
+    2. Explicitly explain how their journey matches MY interests and avoids my dislikes. Use phrases like "Just like you enjoy [interest]..." or "Since you dislike [dislike], you'll notice ${name} focused on..."
+    
+    Keep it short, inspiring, and relatable for a 15-year-old.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        responseSchema: personalityAnalysisSchema,
+        temperature: 0.7,
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response from AI");
+
+    return JSON.parse(text) as PersonalityAnalysis;
+  } catch (error) {
+    console.error("Error fetching personality analysis:", error);
     throw error;
   }
 };

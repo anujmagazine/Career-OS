@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
-import { AppStep, CareerOption, CareerRoadmap, UserProfile } from './types';
+import { AppStep, CareerOption, CareerRoadmap, UserProfile, PersonalityAnalysis } from './types';
 import IntakeForm from './components/IntakeForm';
 import CareerList from './components/CareerList';
 import RoadmapView from './components/RoadmapView';
-import { fetchCareerOptions, fetchCareerRoadmap } from './services/geminiService';
+import PersonalityModal from './components/PersonalityModal';
+import { fetchCareerOptions, fetchCareerRoadmap, fetchPersonalityAnalysis } from './services/geminiService';
 import { Compass } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -12,6 +14,12 @@ const App: React.FC = () => {
   const [careers, setCareers] = useState<CareerOption[]>([]);
   const [selectedRoadmap, setSelectedRoadmap] = useState<CareerRoadmap | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingPersonality, setLoadingPersonality] = useState(false);
+  const [personalityData, setPersonalityData] = useState<PersonalityAnalysis | null>(null);
+  const [selectedPersonName, setSelectedPersonName] = useState("");
 
   // Step 1 -> Step 2
   const handleIntakeSubmit = async (data: UserProfile) => {
@@ -44,6 +52,28 @@ const App: React.FC = () => {
       console.error(err);
       setErrorMsg("Could not generate the roadmap. Please try selecting again.");
       setStep(AppStep.LIST);
+    }
+  };
+
+  // Personality Analysis
+  const handleAnalyzePersonality = async (name: string, careerTitle: string) => {
+    if (!userProfile) return;
+    
+    setSelectedPersonName(name);
+    setIsModalOpen(true);
+    setLoadingPersonality(true);
+    setPersonalityData(null);
+
+    try {
+      const analysis = await fetchPersonalityAnalysis(name, careerTitle, userProfile);
+      setPersonalityData(analysis);
+    } catch (err) {
+      console.error(err);
+      // Keep modal open but maybe show error inside (handled by modal component or just close)
+      setIsModalOpen(false); 
+      alert("Oops, couldn't find info on " + name + " right now.");
+    } finally {
+      setLoadingPersonality(false);
     }
   };
 
@@ -105,6 +135,7 @@ const App: React.FC = () => {
             careers={careers} 
             onSelect={handleCareerSelect} 
             onBack={resetApp} 
+            onAnalyzePersonality={handleAnalyzePersonality}
           />
         )}
 
@@ -124,6 +155,15 @@ const App: React.FC = () => {
             onBack={backToList} 
           />
         )}
+
+        {/* Personality Analysis Modal */}
+        <PersonalityModal 
+          isOpen={isModalOpen}
+          isLoading={loadingPersonality}
+          data={personalityData}
+          onClose={() => setIsModalOpen(false)}
+          personName={selectedPersonName}
+        />
 
       </main>
 
