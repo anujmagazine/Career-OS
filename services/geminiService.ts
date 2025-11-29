@@ -84,7 +84,10 @@ export const fetchCareerOptions = async (profile: UserProfile): Promise<CareerOp
     1. **Modern Mix:** Explicitly consider and include "new age" or emerging careers (e.g., AI, Sustainability, Digital Media, Green Tech) alongside traditional paths if they fit the interests.
     2. **Strict Filtering:** If I dislike Math, do not suggest Engineering. If I dislike blood, no Medicine. Use the dislikes strictly.
     3. **Localization:** Ensure these are viable in ${profile.country}.
-    4. **Inspiration:** For each career, identify 1-2 famous personalities from ${profile.country} (or globally if no local match is famous enough) to inspire the student.
+    4. **Inspiration (Critical Accuracy):** Identify 1-2 famous personalities from ${profile.country} (or globally) who are **iconic examples** of this specific job. 
+       - **Strict Rule:** Do NOT list generic Tech CEOs for specialized roles. 
+       - Example: Do NOT list Satya Nadella as a Data Scientist (he is a CEO/Engineer). Do NOT list Sundar Pichai as an AI Engineer.
+       - Instead, find people known for **doing the work** or pioneering the specific field (e.g., Andrew Ng for AI, DJ Patil for Data Science, Zaha Hadid for Architecture).
   `;
 
   try {
